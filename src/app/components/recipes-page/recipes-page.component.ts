@@ -10,10 +10,22 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, RouterModule, RouterOutlet } from '@angular/router';
+import { RecipesNavbarComponent } from './components/recipes-navbar/recipes-navbar.component';
 
 @Component({
   selector: 'app-recipes-page',
-  imports: [MatSelectModule, MatTableModule, MatIconModule, MatPaginatorModule],
+  imports: [
+    RecipesNavbarComponent,
+    MatSelectModule,
+    MatTableModule,
+    MatIconModule,
+    MatPaginatorModule,
+    RouterOutlet,
+    CommonModule,
+    RouterModule,
+  ],
   templateUrl: './recipes-page.component.html',
   styleUrl: './recipes-page.component.scss',
 })
@@ -31,9 +43,9 @@ export class RecipesPageComponent implements OnInit {
   isLoading = signal(true);
   pageSizeSignal: WritableSignal<number> = signal(10);
   pageIndexSignal: WritableSignal<number> = signal(0);
-  totalItems = computed(() => this.dataSource().length)
+  totalItems = computed(() => this.dataSource().length);
   pageSizeOptions: number[] = [5, 10, 25, 100];
-  recipesTags:string[]=[]
+  recipesTags: string[] = [];
 
   paginatedData = computed(() => {
     const data = this.dataSource();
@@ -46,12 +58,14 @@ export class RecipesPageComponent implements OnInit {
     return data.slice(start, end);
   });
 
-
-  constructor(public recipesService: RecipesService) {}
+  constructor(
+    public recipesService: RecipesService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     this.getRecipes();
-    this.getRecipesTags()
+    this.getRecipesTags();
   }
 
   getRecipes() {
@@ -66,19 +80,17 @@ export class RecipesPageComponent implements OnInit {
     });
   }
 
-  getRecipesTags(){
+  getRecipesTags() {
     this.recipesService.getRecipesTags().subscribe({
-      next:(resTags)=>{
-        console.log({resTags});
-        this.recipesTags = resTags
-      }
-    })
+      next: (resTags) => {
+        console.log({ resTags });
+        this.recipesTags = resTags;
+      },
+    });
   }
 
   handlePageEvent(event: PageEvent): void {
     this.pageSizeSignal.set(event.pageSize);
     this.pageIndexSignal.set(event.pageIndex);
   }
-
-
 }

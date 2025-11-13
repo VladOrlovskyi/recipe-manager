@@ -1,20 +1,24 @@
 import { Routes } from '@angular/router';
 import { LoginPageComponent } from './components/login-page/login-page.component';
-import { RecipesPageComponent } from './components/recipes-page/recipes-page.component';
+import { authGuard, publicGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-    {
-        path:'',
-        pathMatch:"full",
-        component:LoginPageComponent
-    },
-    {
-        path:'recipes',
-        pathMatch:"full",
-        component:RecipesPageComponent
-        // need use loadComponent
-    },
-    {
-        path:'**', redirectTo:'/404', // Need create Not Found Component
-    }
+  {
+    path: '',
+    pathMatch: 'full',
+    canActivate: [publicGuard],
+    component: LoginPageComponent,
+  },
+  {
+    path: 'recipes',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./components/recipes-page/recipes.routes').then(
+        (m) => m.RECIPES_ROUTES
+      ),
+  },
+  {
+    path: '**',
+    redirectTo: '/404', // Need create Not Found Component
+  },
 ];

@@ -1,9 +1,82 @@
-<mat-card appearance="outlined">
-    <mat-card-content>
-        <p>Recipe Manager</p>
-        <p>Sign in to manage your recipes</p>
-        <input type="text">
-        <input type="text">
-        <button type="button" (click)="signIn()">Sign In</button>
-    </mat-card-content>
+<mat-card class="login-card">
+  <mat-card-content class="card-content-wrapper">
+    <div class="header-container">
+      <div class="app-icon">
+        <mat-icon>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-chef-hat h-8 w-8 text-white"
+            aria-hidden="true"
+          >
+            <path
+              d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z"
+            ></path>
+            <path d="M6 17h12"></path>
+          </svg>
+        </mat-icon>
+      </div>
+      <p class="title">Recipe Manager</p>
+      <p class="subtitle">Sign in to manage your recipes</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="signIn()">
+      <div class="input-group">
+        <label for="username" class="input-label">Username</label>
+        <mat-form-field appearance="fill" class="custom-mat-form-field">
+          <input
+            matInput
+            id="username"
+            type="text"
+            formControlName="username"
+            placeholder="Enter your username"
+          />
+          @if (loginForm.get('username')?.invalid &&
+          loginForm.get('username')?.touched) {
+          <mat-error>
+            @if (loginForm.get('username')?.errors?.['required']) { Username is
+            required }
+          </mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="input-group">
+        <label for="password" class="input-label">Password</label>
+        <mat-form-field appearance="fill" class="custom-mat-form-field">
+          <input
+            matInput
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="Enter your password"
+          />
+          @if (loginForm.get('password')?.invalid &&
+          loginForm.get('password')?.touched) {
+          <mat-error>
+            @if (loginForm.get('password')?.errors?.['required']) { Password is
+            required }
+          </mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <button
+        mat-flat-button
+        color="primary"
+        [disabled]="loginForm.invalid"
+        type="submit"
+        class="login-button full-width"
+      >
+        Sign In
+      </button>
+    </form>
+  </mat-card-content>
 </mat-card>

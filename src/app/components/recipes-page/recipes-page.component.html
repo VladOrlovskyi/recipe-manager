@@ -1,106 +1,75 @@
-<div>Future navbar with logout btn</div>
-<p>Recipes</p>
-<p>Browse and manage your recipe collection</p>
-<div>
-  Future search and select
-  <input type="text" />
-  <mat-form-field>
-  <mat-label>Select an option</mat-label>
-  <mat-select disableRipple>
-    @for (recipeTag of recipesTags; track $index) {
-        <mat-option [value]="recipeTag">{{recipeTag}}</mat-option>
-    }
-  </mat-select>
-</mat-form-field>
-</div>
-<p>Showing {{pageSizeSignal()}} of {{totalItems()}} recipes</p>
-<div>Future table with pagination</div>
+<section>
+  <app-recipes-navbar></app-recipes-navbar>
+  @if (!outlet.isActivated) {
+  <p>Recipes</p>
+  <p>Browse and manage your recipe collection</p>
+  <div>
+    Future search and select
+    <input type="text" />
+    <mat-form-field>
+      <mat-label>Select an option</mat-label>
+      <mat-select disableRipple>
+        @for (recipeTag of recipesTags; track $index) {
+        <mat-option [value]="recipeTag">{{ recipeTag }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <p>Showing {{ pageSizeSignal() }} of {{ totalItems() }} recipes</p>
+  <div>Future table with pagination</div>
 
-<table mat-table [dataSource]="paginatedData()">
-  <ng-container matColumnDef="Image">
-    <th mat-header-cell *matHeaderCellDef>Image</th>
-    <td mat-cell *matCellDef="let row">{{ row.image }}</td>
-  </ng-container>
-  <ng-container matColumnDef="Name">
-    <th mat-header-cell *matHeaderCellDef>Recipe Name</th>
-    <td mat-cell *matCellDef="let row">{{ row.name }}</td>
-  </ng-container>
-  <ng-container matColumnDef="Cuisine">
-    <th mat-header-cell *matHeaderCellDef>Cuisine</th>
-    <td mat-cell *matCellDef="let row">{{ row.cuisine }}</td>
-  </ng-container>
-  <ng-container matColumnDef="Difficulty">
-    <th mat-header-cell *matHeaderCellDef>Difficulty</th>
-    <td mat-cell *matCellDef="let row">{{ row.difficulty }}</td>
-  </ng-container>
-  <ng-container matColumnDef="Calories">
-    <th mat-header-cell *matHeaderCellDef>Calories</th>
-    <td mat-cell *matCellDef="let row">{{ row.caloriesPerServing }}</td>
-  </ng-container>
-  <ng-container matColumnDef="Tags">
-    <th mat-header-cell *matHeaderCellDef>Tags</th>
-    <td mat-cell *matCellDef="let row">{{ row.tags }}</td>
-  </ng-container>
-  <ng-container matColumnDef="Actions">
-    <th mat-header-cell *matHeaderCellDef>Actions</th>
-    <mat-cell *matCellDef="let row">
-      <button mat-icon-button>
-        <mat-icon>launch1</mat-icon>
-      </button>
-      <button mat-icon-button>
-        <mat-icon>launch2</mat-icon>
-      </button>
-      <button mat-icon-button>
-        <mat-icon>launch3</mat-icon>
-      </button>
-    </mat-cell>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-</table>
-<mat-paginator
-  [length]="totalItems()"
-  [pageSize]="pageSizeSignal()"
-  [pageIndex]="pageIndexSignal()"
-  [pageSizeOptions]="pageSizeOptions"
-  (page)="handlePageEvent($event)"
->
-</mat-paginator>
-
-<!-- {
-    "id": 1,
-    "name": "Classic Margherita Pizza",
-    "ingredients": [
-        "Pizza dough",
-        "Tomato sauce",
-        "Fresh mozzarella cheese",
-        "Fresh basil leaves",
-        "Olive oil",
-        "Salt and pepper to taste"
-    ],
-    "instructions": [
-        "Preheat the oven to 475°F (245°C).",
-        "Roll out the pizza dough and spread tomato sauce evenly.",
-        "Top with slices of fresh mozzarella and fresh basil leaves.",
-        "Drizzle with olive oil and season with salt and pepper.",
-        "Bake in the preheated oven for 12-15 minutes or until the crust is golden brown.",
-        "Slice and serve hot."
-    ],
-    "prepTimeMinutes": 20,
-    "cookTimeMinutes": 15,
-    "servings": 4,
-    "difficulty": "Easy",
-    "cuisine": "Italian",
-    "caloriesPerServing": 300,
-    "tags": [
-        "Pizza",
-        "Italian"
-    ],
-    "userId": 166,
-    "image": "https://cdn.dummyjson.com/recipe-images/1.webp",
-    "rating": 4.6,
-    "reviewCount": 98,
-    "mealType": [
-        "Dinner"
-    ]
-} -->
+  <table mat-table [dataSource]="paginatedData()">
+    <ng-container matColumnDef="Image">
+      <th mat-header-cell *matHeaderCellDef>Image</th>
+      <td mat-cell *matCellDef="let row">{{ row.image }}</td>
+    </ng-container>
+    <ng-container matColumnDef="Name">
+      <th mat-header-cell *matHeaderCellDef>Recipe Name</th>
+      <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+    </ng-container>
+    <ng-container matColumnDef="Cuisine">
+      <th mat-header-cell *matHeaderCellDef>Cuisine</th>
+      <td mat-cell *matCellDef="let row">{{ row.cuisine }}</td>
+    </ng-container>
+    <ng-container matColumnDef="Difficulty">
+      <th mat-header-cell *matHeaderCellDef>Difficulty</th>
+      <td mat-cell *matCellDef="let row">{{ row.difficulty }}</td>
+    </ng-container>
+    <ng-container matColumnDef="Calories">
+      <th mat-header-cell *matHeaderCellDef>Calories</th>
+      <td mat-cell *matCellDef="let row">{{ row.caloriesPerServing }}</td>
+    </ng-container>
+    <ng-container matColumnDef="Tags">
+      <th mat-header-cell *matHeaderCellDef>Tags</th>
+      <td mat-cell *matCellDef="let row">{{ row.tags }}</td>
+    </ng-container>
+    <ng-container matColumnDef="Actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <mat-cell *matCellDef="let row">
+        <button mat-icon-button>
+          <a [routerLink]="[row.id]">
+            <mat-icon> </mat-icon>
+          </a>
+        </button>
+        <button mat-icon-button>
+          <mat-icon>launch2</mat-icon>
+        </button>
+        <button mat-icon-button>
+          <mat-icon>launch3</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+  <mat-paginator
+    [length]="totalItems()"
+    [pageSize]="pageSizeSignal()"
+    [pageIndex]="pageIndexSignal()"
+    [pageSizeOptions]="pageSizeOptions"
+    (page)="handlePageEvent($event)"
+  >
+  </mat-paginator>
+  }
+</section>
+<router-outlet #outlet="outlet"></router-outlet>
