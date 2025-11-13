@@ -20,7 +20,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatOptionModule } from '@angular/material/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { debounceTime, map, Observable } from 'rxjs';
+import {
+  combineLatest,
+  debounceTime,
+  map,
+  Observable,
+  startWith,
+  switchMap,
+} from 'rxjs';
 
 @Component({
   selector: 'app-recipes-page',
@@ -96,60 +103,60 @@ export class RecipesPageComponent implements OnInit {
   });
 
   constructor(public recipesService: RecipesService) {
-    effect(
-      () => {
-        const tag = this.tagFilter();
-        const search = this.searchFilter();
-
-        this.getRecipes(tag, search);
-
-        if (this.pageIndexSignal() !== 0) {
-          this.pageIndexSignal.set(0);
+    const filters$ = combineLatest([
+      this.tagControl.valueChanges.pipe(startWith(this.tagControl.value)),
+      this.searchControl.valueChanges.pipe(
+        startWith(this.searchControl.value),
+        debounceTime(300)
+      ),
+    ]).pipe(
+      switchMap(([tag, search]) => {
+        this.isLoading.set(true);
+        const query = search.trim();
+        let request$: Observable<{ recipes: any[] }>;
+        if (!query && tag === 'All') {
+          request$ = this.recipesService.getRecipesByTag(tag);
+        } else if (!query && tag !== 'All') {
+          request$ = this.recipesService.getRecipesByTag(tag);
+        } else if (query && tag === 'All') {
+          request$ = this.recipesService.searchRecipes(query);
+        } else if (query && tag !== 'All') {
+          request$ = this.recipesService.combineTagAndSearch(tag, query).pipe(
+            map(([tagResults, searchResults]) => {
+              const tagIds = new Set(tagResults.map((r: any) => r.id));
+              const combinedRecipes = searchResults.filter((r: any) =>
+                tagIds.has(r.id)
+              );
+              return { recipes: combinedRecipes };
+            })
+          );
+        } else {
+          request$ = this.recipesService.getRecipesByTag('All');
         }
-      },
-      { allowSignalWrites: true }
+        return request$.pipe(
+          map((res) => res.recipes || []),
+          startWith(this.dataSource())
+        );
+      })
     );
+
+    const recipesSignal = toSignal(filters$, { initialValue: [] });
+
+    effect(() => {
+      const recipes = recipesSignal();
+      if (recipes && Array.isArray(recipes)) {
+        this.dataSource.set(recipes);
+        this.isLoading.set(false);
+      }
+
+      if (this.pageIndexSignal() !== 0) {
+        this.pageIndexSignal.set(0);
+      }
+    });
   }
 
   ngOnInit(): void {
     this.getRecipesTags();
-  }
-
-  getRecipes(tag: string = 'All', search: string = '') {
-    this.isLoading.set(true);
-    search = search.trim();
-    let request$: Observable<any>;
-    if (!search && tag === 'All') {
-      request$ = this.recipesService.getRecipesByTag(tag);
-    } else if (!search && tag !== 'All') {
-      request$ = this.recipesService.getRecipesByTag(tag);
-    } else if (search && tag === 'All') {
-      request$ = this.recipesService.searchRecipes(search);
-    } else if (search && tag !== 'All') {
-      request$ = this.recipesService.combineTagAndSearch(tag, search).pipe(
-        map(([tagResults, searchResults]) => {
-          const tagIds = new Set(tagResults.map((r: any) => r.id));
-          const combinedRecipes = searchResults.filter((r: any) =>
-            tagIds.has(r.id)
-          );
-          return { recipes: combinedRecipes };
-        })
-      );
-    } else {
-      request$ = this.recipesService.getRecipesByTag('All');
-    }
-
-    request$.subscribe({
-      next: (res: { recipes: any[] }) => {
-        this.dataSource.set(res.recipes || []);
-        this.isLoading.set(false);
-      },
-      error: (err: any) => {
-        console.error('Error fetching recipes:', err);
-        this.dataSource.set([]);
-        this.isLoading.set(false);
-      },
-    });
   }
 
   getRecipesTags() {
