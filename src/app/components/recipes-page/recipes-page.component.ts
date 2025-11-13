@@ -73,7 +73,6 @@ export class RecipesPageComponent implements OnInit {
   filteredData = computed(() => {
     const data = this.dataSource();
     const search = this.searchFilter().toLowerCase().trim();
-    const tag = this.tagFilter();
 
     return data.filter((recipe) => {
       const matchesSearch =
@@ -81,13 +80,7 @@ export class RecipesPageComponent implements OnInit {
         recipe.name.toLowerCase().includes(search) ||
         recipe.cuisine.toLowerCase().includes(search);
 
-      const matchesTag =
-        tag === 'All' ||
-        (recipe.tags &&
-          Array.isArray(recipe.tags) &&
-          recipe.tags.includes(tag));
-
-      return matchesSearch && matchesTag;
+      return matchesSearch;
     });
   });
 
@@ -104,27 +97,47 @@ export class RecipesPageComponent implements OnInit {
 
   constructor(public recipesService: RecipesService) {
     effect(() => {
+      const tag = this.tagFilter();
+      console.warn({tag});
+      
       this.searchFilter();
-      this.tagFilter();
+
+      this.getRecipes(tag);
 
       if (this.pageIndexSignal() !== 0) {
         this.pageIndexSignal.set(0);
       }
     });
+
+    effect(
+      () => {
+        this.searchFilter();
+
+        if (this.pageIndexSignal() !== 0) {
+          this.pageIndexSignal.set(0);
+        }
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   ngOnInit(): void {
-    this.getRecipes();
+    // this.getRecipes();
     this.getRecipesTags();
   }
 
-  getRecipes() {
-    this.recipesService.getRecipes().subscribe({
+  getRecipes(tag: string = this.tagControl.value) {
+    this.isLoading.set(true);
+    this.recipesService.getRecipes(tag).subscribe({
       next: (resRecipes) => {
         console.log({ resRecipes });
         console.log(resRecipes.recipes);
 
         this.dataSource.set(resRecipes.recipes);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error:', err);
         this.isLoading.set(false);
       },
     });

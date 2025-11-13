@@ -6,17 +6,27 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class RecipesService {
+  private apiUrl = 'https://dummyjson.com';
+
   constructor(private _http: HttpClient) {}
 
-  getRecipes(): Observable<any> {
-    return this._http.get(`https://dummyjson.com/recipes`);
+  getRecipes(tag?: string): Observable<any> {
+    let url: string;
+
+    if (tag && tag !== 'All') {
+      url = `${this.apiUrl}/recipes/tag/${tag}`;
+    } else {
+      url = `${this.apiUrl}/recipes`;
+    }
+
+    return this._http.get<any>(url);
   }
 
   getRecipe(id: number): Observable<any> {
-    return this._http.get(`https://dummyjson.com/recipes/${id}`);
+    return this._http.get(`${this.apiUrl}/recipes/${id}`);
   }
 
-  getRecipesTags(): Observable<any> {
-    return this._http.get(`https://dummyjson.com/recipes/tags`);
+  getRecipesTags(): Observable<string[]> {
+    return this._http.get<string[]>(`${this.apiUrl}/recipes/tags`);
   }
 }
