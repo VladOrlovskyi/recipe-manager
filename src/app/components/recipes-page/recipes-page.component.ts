@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  effect,
   OnInit,
   signal,
   WritableSignal,
@@ -11,8 +12,15 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule, RouterOutlet } from '@angular/router';
+import { RouterModule, RouterOutlet } from '@angular/router';
 import { RecipesNavbarComponent } from './components/recipes-navbar/recipes-navbar.component';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatOptionModule } from '@angular/material/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime } from 'rxjs';
 
 @Component({
   selector: 'app-recipes-page',
@@ -25,6 +33,11 @@ import { RecipesNavbarComponent } from './components/recipes-navbar/recipes-navb
     RouterOutlet,
     CommonModule,
     RouterModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatOptionModule,
+    ReactiveFormsModule,
   ],
   templateUrl: './recipes-page.component.html',
   styleUrl: './recipes-page.component.scss',
@@ -43,12 +56,43 @@ export class RecipesPageComponent implements OnInit {
   isLoading = signal(true);
   pageSizeSignal: WritableSignal<number> = signal(10);
   pageIndexSignal: WritableSignal<number> = signal(0);
-  totalItems = computed(() => this.dataSource().length);
+  totalItems = computed(() => this.filteredData().length);
   pageSizeOptions: number[] = [5, 10, 25, 100];
   recipesTags: string[] = [];
+  searchControl = new FormControl('', { nonNullable: true });
+  tagControl = new FormControl('All', { nonNullable: true });
+
+  searchFilter = toSignal(
+    this.searchControl.valueChanges.pipe(debounceTime(300)),
+    { initialValue: this.searchControl.value }
+  );
+  tagFilter = toSignal(this.tagControl.valueChanges, {
+    initialValue: this.tagControl.value,
+  });
+
+  filteredData = computed(() => {
+    const data = this.dataSource();
+    const search = this.searchFilter().toLowerCase().trim();
+    const tag = this.tagFilter();
+
+    return data.filter((recipe) => {
+      const matchesSearch =
+        !search ||
+        recipe.name.toLowerCase().includes(search) ||
+        recipe.cuisine.toLowerCase().includes(search);
+
+      const matchesTag =
+        tag === 'All' ||
+        (recipe.tags &&
+          Array.isArray(recipe.tags) &&
+          recipe.tags.includes(tag));
+
+      return matchesSearch && matchesTag;
+    });
+  });
 
   paginatedData = computed(() => {
-    const data = this.dataSource();
+    const data = this.filteredData();
     const pageSize = this.pageSizeSignal();
     const pageIndex = this.pageIndexSignal();
 
@@ -58,10 +102,16 @@ export class RecipesPageComponent implements OnInit {
     return data.slice(start, end);
   });
 
-  constructor(
-    public recipesService: RecipesService,
-    private route: ActivatedRoute
-  ) {}
+  constructor(public recipesService: RecipesService) {
+    effect(() => {
+      this.searchFilter();
+      this.tagFilter();
+
+      if (this.pageIndexSignal() !== 0) {
+        this.pageIndexSignal.set(0);
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.getRecipes();
