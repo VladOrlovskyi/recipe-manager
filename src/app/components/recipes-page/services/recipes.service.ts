@@ -21,7 +21,7 @@ export class RecipesService {
     if (tag && tag !== 'All') {
       url = `${this.apiUrl}/tag/${tag}`;
     } else {
-      url = this.apiUrl;
+      url = this.apiUrl + '?limit=0&select=';
     }
 
     return this._http.get<any>(url);
@@ -44,5 +44,11 @@ export class RecipesService {
 
   getRecipesTags(): Observable<string[]> {
     return this._http.get<string[]>(`${this.apiUrl}/tags`);
+  }
+
+  getRecipesWithPagination(limit: number, skip: number): Observable<any> {
+    const params = new HttpParams().set('limit', limit).set('skip', skip);
+
+    return this._http.get<any>(this.apiUrl, { params });
   }
 }

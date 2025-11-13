@@ -26,6 +26,7 @@ import {
   map,
   Observable,
   startWith,
+  Subject,
   switchMap,
 } from 'rxjs';
 
@@ -63,8 +64,7 @@ export class RecipesPageComponent implements OnInit {
   isLoading = signal(true);
   pageSizeSignal: WritableSignal<number> = signal(10);
   pageIndexSignal: WritableSignal<number> = signal(0);
-  totalItems = computed(() => this.filteredData().length);
-  pageSizeOptions: number[] = [5, 10, 25, 100];
+  pageSizeOptions: number[] = [10, 25, 50];
   recipesTags: string[] = [];
   searchControl = new FormControl('', { nonNullable: true });
   tagControl = new FormControl('All', { nonNullable: true });
@@ -76,6 +76,13 @@ export class RecipesPageComponent implements OnInit {
   tagFilter = toSignal(this.tagControl.valueChanges, {
     initialValue: this.tagControl.value,
   });
+
+  totalRecipes: WritableSignal<number> = signal(0);
+  private paginationChange$ = new Subject<void>();
+
+  totalItems = computed(() =>
+    this.totalRecipes() > 0 ? this.totalRecipes() : this.filteredData().length
+  );
 
   filteredData = computed(() => {
     const data = this.dataSource();
@@ -103,49 +110,77 @@ export class RecipesPageComponent implements OnInit {
   });
 
   constructor(public recipesService: RecipesService) {
-    const filters$ = combineLatest([
+    const filterChanges$ = combineLatest([
       this.tagControl.valueChanges.pipe(startWith(this.tagControl.value)),
       this.searchControl.valueChanges.pipe(
         startWith(this.searchControl.value),
         debounceTime(300)
       ),
-    ]).pipe(
+    ]);
+
+    const filterAndPaginationChanges$ = combineLatest([
+      filterChanges$,
+      this.paginationChange$.pipe(startWith(null)),
+    ]).pipe(map(([filterTuple, _]) => filterTuple));
+
+    const apiRequestTrigger$ = filterAndPaginationChanges$.pipe(
       switchMap(([tag, search]) => {
         this.isLoading.set(true);
         const query = search.trim();
-        let request$: Observable<{ recipes: any[] }>;
+        let request$: Observable<any>;
         if (!query && tag === 'All') {
-          request$ = this.recipesService.getRecipesByTag(tag);
+          const limit = this.pageSizeSignal();
+          const skip = this.pageIndexSignal() * limit;
+          request$ = this.recipesService
+            .getRecipesWithPagination(limit, skip)
+            .pipe(
+              map((res) => ({
+                recipes: res.recipes || [],
+                total: res.total || 0,
+              }))
+            );
         } else if (!query && tag !== 'All') {
-          request$ = this.recipesService.getRecipesByTag(tag);
+          this.totalRecipes.set(0);
+          request$ = this.recipesService
+            .getRecipesByTag(tag)
+            .pipe(map((res) => ({ recipes: res.recipes || [], total: 0 })));
         } else if (query && tag === 'All') {
-          request$ = this.recipesService.searchRecipes(query);
+          this.totalRecipes.set(0);
+          request$ = this.recipesService
+            .searchRecipes(query)
+            .pipe(map((res) => ({ recipes: res.recipes || [], total: 0 })));
         } else if (query && tag !== 'All') {
+          this.totalRecipes.set(0);
           request$ = this.recipesService.combineTagAndSearch(tag, query).pipe(
             map(([tagResults, searchResults]) => {
               const tagIds = new Set(tagResults.map((r: any) => r.id));
               const combinedRecipes = searchResults.filter((r: any) =>
                 tagIds.has(r.id)
               );
-              return { recipes: combinedRecipes };
+              return { recipes: combinedRecipes, total: 0 };
             })
           );
         } else {
+          this.totalRecipes.set(0);
           request$ = this.recipesService.getRecipesByTag('All');
         }
         return request$.pipe(
-          map((res) => res.recipes || []),
-          startWith(this.dataSource())
+          startWith({ recipes: this.dataSource(), total: this.totalRecipes() })
         );
       })
     );
-
-    const recipesSignal = toSignal(filters$, { initialValue: [] });
+    const recipesSignal = toSignal(apiRequestTrigger$, {
+      initialValue: { recipes: [], total: 0 },
+    });
 
     effect(() => {
-      const recipes = recipesSignal();
-      if (recipes && Array.isArray(recipes)) {
-        this.dataSource.set(recipes);
+      const result = recipesSignal();
+      if (result && Array.isArray(result.recipes)) {
+        this.dataSource.set(result.recipes);
+        if (result.total > 0) {
+          this.totalRecipes.set(result.total);
+        }
+
         this.isLoading.set(false);
       }
 
@@ -162,7 +197,6 @@ export class RecipesPageComponent implements OnInit {
   getRecipesTags() {
     this.recipesService.getRecipesTags().subscribe({
       next: (resTags) => {
-        console.log({ resTags });
         this.recipesTags = resTags;
       },
     });
@@ -171,5 +205,11 @@ export class RecipesPageComponent implements OnInit {
   handlePageEvent(event: PageEvent): void {
     this.pageSizeSignal.set(event.pageSize);
     this.pageIndexSignal.set(event.pageIndex);
+    const query = this.searchControl.value.trim();
+    const tag = this.tagControl.value;
+
+    if (!query && tag === 'All') {
+      this.paginationChange$.next();
+    }
   }
 }
