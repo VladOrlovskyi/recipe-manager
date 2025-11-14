@@ -65,7 +65,6 @@ export class RecipeDetailsPageComponent implements OnInit {
 
   openEditDialog(): void {
     if (!this.currentRecipe) {
-      console.warn('Неможливо відкрити редагування: рецепт ще не завантажено.');
       return;
     }
 

@@ -46,10 +46,8 @@ export class LoginPageComponent implements OnInit {
   signIn() {
     this.authService.loginUser(this.loginForm.value).subscribe({
       next: (res) => {
-        console.log({ res });
         this.authService.authenticateUser(res.accessToken).subscribe({
           next: (authRes) => {
-            console.log({ authRes });
             this.authService.saveToken(res.accessToken);
             this.router.navigate(['/recipes']);
           },
