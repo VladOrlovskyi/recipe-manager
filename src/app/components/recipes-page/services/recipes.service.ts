@@ -1,13 +1,15 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { forkJoin, map, Observable } from 'rxjs';
+import { forkJoin, map, Observable, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RecipesService {
   private apiUrl = 'https://dummyjson.com/recipes';
-
+  private recipeDeletedSource = new Subject<number>();
+  recipeDeleted$: Observable<number> = this.recipeDeletedSource.asObservable();
+  
   constructor(private _http: HttpClient) {}
 
   searchRecipes(query: string): Observable<any> {
@@ -50,5 +52,9 @@ export class RecipesService {
     const params = new HttpParams().set('limit', limit).set('skip', skip);
 
     return this._http.get<any>(this.apiUrl, { params });
+  }
+
+  notifyRecipeDeleted(id: number): void {
+    this.recipeDeletedSource.next(id);
   }
 }

@@ -196,6 +196,7 @@ export class RecipesPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.getRecipesTags();
+    this.subscribeToRecipeDeletions()
   }
 
   getRecipesTags() {
@@ -251,4 +252,10 @@ export class RecipesPageComponent implements OnInit {
       this.pageIndexSignal.update((index) => index - 1);
     }
   }
+
+  subscribeToRecipeDeletions(): void {
+  this.recipesService.recipeDeleted$.subscribe(deletedId => {
+    this.deleteRecipeLocally(deletedId);
+  });
+}
 }

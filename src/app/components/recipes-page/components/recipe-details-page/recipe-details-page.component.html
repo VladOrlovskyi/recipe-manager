@@ -2,24 +2,24 @@
   <button [routerLink]="['/recipes']">← Back</button>
 
   <div class="main">
-    <img [src]="currentRecipe.image" alt="recipe-image" />
+    <img [src]="currentRecipe?.image" alt="recipe-image" />
     <div class="title-btns">
-      <p>{{ currentRecipe.name }}</p>
+      <p>{{ currentRecipe?.name }}</p>
       <div>
         <button type="button">Edit</button>
-        <button type="button">Delete</button>
+        <button type="button" (click)="confirmDeletion(recipeId)">Delete</button>
       </div>
     </div>
-    <div class="cuisine">{{ currentRecipe.cuisine }}</div>
+    <div class="cuisine">{{ currentRecipe?.cuisine }}</div>
     <div class="tags">
       <div
         [class]="
-          currentRecipe.difficulty === 'Easy'
+          currentRecipe?.difficulty === 'Easy'
             ? 'difficulty-easy'
             : 'difficulty-medium'
         "
       >
-        {{ currentRecipe.difficulty }}
+        {{ currentRecipe?.difficulty }}
       </div>
       @for(tag of currentRecipe.tags; track tag){
       <div>

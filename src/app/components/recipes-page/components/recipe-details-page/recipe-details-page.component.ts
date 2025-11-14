@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RecipesService } from '../../services/recipes.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ModalConfirmationDialogComponent } from '../modal-confirmation-dialog/modal-confirmation-dialog.component';
 
 @Component({
   selector: 'app-recipe-details-page',
@@ -11,6 +13,7 @@ import { RecipesService } from '../../services/recipes.service';
 export class RecipeDetailsPageComponent implements OnInit {
   recipeId: number;
   currentRecipe: any;
+  private dialog = inject(MatDialog);
 
   constructor(
     public recipesService: RecipesService,
@@ -36,9 +39,26 @@ export class RecipeDetailsPageComponent implements OnInit {
   getRecipe(id: number) {
     this.recipesService.getRecipe(id).subscribe({
       next: (recipeRes) => {
-        console.log({ recipeRes });
         this.currentRecipe = recipeRes;
       },
     });
+  }
+
+  confirmDeletion(recipeId: number): void {
+    const dialogRef = this.dialog.open(ModalConfirmationDialogComponent, {
+      width: '400px',
+      data: { recipeId: recipeId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.deleteAndRedirect(recipeId);
+      }
+    });
+  }
+
+  deleteAndRedirect(id: number): void {
+    this.recipesService.notifyRecipeDeleted(id);
+    this.router.navigate(['/recipes']); 
   }
 }
