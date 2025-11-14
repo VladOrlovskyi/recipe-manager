@@ -1,9 +1,16 @@
 section {
   margin-top: 64px;
+  padding: 24px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
+
+  button{
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
 
   .main {
     background: #fff;
