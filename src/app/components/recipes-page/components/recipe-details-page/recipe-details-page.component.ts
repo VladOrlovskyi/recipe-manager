@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RecipesService } from '../../services/recipes.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalConfirmationDialogComponent } from '../modal-confirmation-dialog/modal-confirmation-dialog.component';
+import { EditRecipeDialogComponent } from '../edit-recipe-dialog/edit-recipe-dialog.component';
 
 @Component({
   selector: 'app-recipe-details-page',
@@ -47,10 +48,10 @@ export class RecipeDetailsPageComponent implements OnInit {
   confirmDeletion(recipeId: number): void {
     const dialogRef = this.dialog.open(ModalConfirmationDialogComponent, {
       width: '400px',
-      data: { recipeId: recipeId }
+      data: { recipeId: recipeId },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
         this.deleteAndRedirect(recipeId);
       }
@@ -59,6 +60,24 @@ export class RecipeDetailsPageComponent implements OnInit {
 
   deleteAndRedirect(id: number): void {
     this.recipesService.notifyRecipeDeleted(id);
-    this.router.navigate(['/recipes']); 
+    this.router.navigate(['/recipes']);
+  }
+
+  openEditDialog(): void {
+    if (!this.currentRecipe) {
+      console.warn('Неможливо відкрити редагування: рецепт ще не завантажено.');
+      return;
+    }
+
+    const dialogRef = this.dialog.open(EditRecipeDialogComponent, {
+      width: '900px',
+      data: { ...this.currentRecipe },
+    });
+
+    dialogRef.afterClosed().subscribe((updatedData: any | undefined) => {
+      if (updatedData) {
+        this.currentRecipe = updatedData;
+      }
+    });
   }
 }

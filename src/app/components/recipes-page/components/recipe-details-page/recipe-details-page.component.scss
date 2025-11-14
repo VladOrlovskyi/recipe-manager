@@ -4,7 +4,6 @@ section {
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  
 
   .main {
     background: #fff;
@@ -43,56 +42,65 @@ section {
       flex-direction: row;
       gap: 8px;
       padding: 0px 24px;
-      
+
       div {
         padding: 4px;
         border: 1px solid grey;
         border-radius: 12px;
-    }
-    
-    .difficulty-easy {
+      }
+
+      .difficulty-easy {
         background: lightgreen;
         color: green;
         text-align: center;
-    }
-    
-    .difficulty-medium {
+      }
+
+      .difficulty-medium {
         background: lemonchiffon;
         color: orange;
         text-align: center;
-    }
-}
+      }
 
-.another-info {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 24px;
-    
-    .prep, .cook, .servings, .calories{
+      .difficulty-hard {
+        background: lightsalmon;
+        color: red;
+        text-align: center;
+      }
+    }
+
+    .another-info {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      padding: 24px;
+
+      .prep,
+      .cook,
+      .servings,
+      .calories {
         display: flex;
         flex-direction: row;
         align-items: center;
         gap: 8px;
-        
-        p{
-            margin: 0;
-        }
-    }
-}
-}
 
-.blocks {
+        p {
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  .blocks {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    gap:16px;
+    gap: 16px;
     max-width: 800px;
-    
-    div{
-        padding: 24px;
-        border: 1px solid grey;
-        border-radius: 12px;
+
+    div {
+      padding: 24px;
+      border: 1px solid grey;
+      border-radius: 12px;
     }
   }
 }

@@ -6,8 +6,10 @@
     <div class="title-btns">
       <p>{{ currentRecipe?.name }}</p>
       <div>
-        <button type="button">Edit</button>
-        <button type="button" (click)="confirmDeletion(recipeId)">Delete</button>
+        <button type="button" (click)="openEditDialog()">Edit</button>
+        <button type="button" (click)="confirmDeletion(recipeId)">
+          Delete
+        </button>
       </div>
     </div>
     <div class="cuisine">{{ currentRecipe?.cuisine }}</div>
@@ -16,12 +18,14 @@
         [class]="
           currentRecipe?.difficulty === 'Easy'
             ? 'difficulty-easy'
-            : 'difficulty-medium'
+            : currentRecipe?.difficulty === 'Medium'
+            ? 'difficulty-medium'
+            : 'difficulty-hard'
         "
       >
         {{ currentRecipe?.difficulty }}
       </div>
-      @for(tag of currentRecipe.tags; track tag){
+      @for(tag of currentRecipe?.tags; track tag){
       <div>
         {{ tag }}
       </div>
@@ -51,7 +55,7 @@
         <div class="desc">
           <p>Prep Time</p>
           <p>
-            {{ currentRecipe.prepTimeMinutes }}
+            {{ currentRecipe?.prepTimeMinutes }}
           </p>
         </div>
       </div>
@@ -77,7 +81,7 @@
         <div class="desc">
           <p>Cook Time</p>
           <p>
-            {{ currentRecipe.cookTimeMinutes }}
+            {{ currentRecipe?.cookTimeMinutes }}
           </p>
         </div>
       </div>
@@ -105,7 +109,7 @@
         <div class="desc">
           <p>Servings</p>
           <p>
-            {{ currentRecipe.servings }}
+            {{ currentRecipe?.servings }}
           </p>
         </div>
       </div>
@@ -131,9 +135,7 @@
         </div>
         <div class="desc">
           <p>Calories</p>
-          <p>
-            {{ currentRecipe.caloriesPerServing }} kcal
-          </p>
+          <p>{{ currentRecipe?.caloriesPerServing }} kcal</p>
         </div>
       </div>
     </div>
@@ -142,7 +144,7 @@
     <div>
       <h5>Ingredients</h5>
       <ul>
-        @for(ingredient of currentRecipe.ingredients; track ingredient){
+        @for(ingredient of currentRecipe?.ingredients; track ingredient){
         <li>
           {{ ingredient }}
         </li>
@@ -152,7 +154,7 @@
     <div>
       <h5>Instructions</h5>
       <ol>
-        @for(instruction of currentRecipe.instructions; track instruction){
+        @for(instruction of currentRecipe?.instructions; track instruction){
         <li>
           {{ instruction }}
         </li>
