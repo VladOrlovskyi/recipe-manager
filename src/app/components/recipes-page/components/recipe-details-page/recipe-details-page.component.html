@@ -11,12 +11,131 @@
       </div>
     </div>
     <div class="cuisine">{{ currentRecipe.cuisine }}</div>
-    <div class="tags">{{ currentRecipe.tags }}</div>
+    <div class="tags">
+      <div
+        [class]="
+          currentRecipe.difficulty === 'Easy'
+            ? 'difficulty-easy'
+            : 'difficulty-medium'
+        "
+      >
+        {{ currentRecipe.difficulty }}
+      </div>
+      @for(tag of currentRecipe.tags; track tag){
+      <div>
+        {{ tag }}
+      </div>
+
+      }
+    </div>
     <div class="another-info">
-      <div class="prep">{{ currentRecipe.prepTimeMinutes }}</div>
-      <div class="cook">{{ currentRecipe.cookTimeMinutes }}</div>
-      <div class="servings">{{ currentRecipe.servings }}</div>
-      <div class="calories">{{ currentRecipe.caloriesPerServing }}</div>
+      <div class="prep">
+        <div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-clock h-5 w-5 text-gray-400"
+            aria-hidden="true"
+          >
+            <path d="M12 6v6l4 2"></path>
+            <circle cx="12" cy="12" r="10"></circle>
+          </svg>
+        </div>
+        <div class="desc">
+          <p>Prep Time</p>
+          <p>
+            {{ currentRecipe.prepTimeMinutes }}
+          </p>
+        </div>
+      </div>
+      <div class="cook">
+        <div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-clock h-5 w-5 text-gray-400"
+            aria-hidden="true"
+          >
+            <path d="M12 6v6l4 2"></path>
+            <circle cx="12" cy="12" r="10"></circle>
+          </svg>
+        </div>
+        <div class="desc">
+          <p>Cook Time</p>
+          <p>
+            {{ currentRecipe.cookTimeMinutes }}
+          </p>
+        </div>
+      </div>
+      <div class="servings">
+        <div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-users h-5 w-5 text-gray-400"
+            aria-hidden="true"
+          >
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <path d="M16 3.128a4 4 0 0 1 0 7.744"></path>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <div class="desc">
+          <p>Servings</p>
+          <p>
+            {{ currentRecipe.servings }}
+          </p>
+        </div>
+      </div>
+      <div class="calories">
+        <div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-flame h-5 w-5 text-gray-400"
+            aria-hidden="true"
+          >
+            <path
+              d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"
+            ></path>
+          </svg>
+        </div>
+        <div class="desc">
+          <p>Calories</p>
+          <p>
+            {{ currentRecipe.caloriesPerServing }} kcal
+          </p>
+        </div>
+      </div>
     </div>
   </div>
   <div class="blocks">
@@ -25,21 +144,17 @@
       <ul>
         @for(ingredient of currentRecipe.ingredients; track ingredient){
         <li>
-          {{
-            ingredient
-          }}
+          {{ ingredient }}
         </li>
         }
       </ul>
     </div>
     <div>
-        <h5>Instructions</h5>
+      <h5>Instructions</h5>
       <ol>
         @for(instruction of currentRecipe.instructions; track instruction){
         <li>
-          {{
-            instruction
-          }}
+          {{ instruction }}
         </li>
         }
       </ol>
