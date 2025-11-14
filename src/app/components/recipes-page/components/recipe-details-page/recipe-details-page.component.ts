@@ -10,6 +10,7 @@ import { RecipesService } from '../../services/recipes.service';
 })
 export class RecipeDetailsPageComponent implements OnInit {
   recipeId: number;
+  currentRecipe:any
 
   constructor(
     public recipesService: RecipesService,
@@ -26,6 +27,7 @@ export class RecipeDetailsPageComponent implements OnInit {
     this.recipesService.getRecipe(id).subscribe({
       next: (recipeRes) => {
         console.log({ recipeRes });
+        this.currentRecipe = recipeRes
       },
     });
   }

@@ -1,5 +1,48 @@
-<button [routerLink]="['/recipes']">← Back</button>
+<section>
+  <button [routerLink]="['/recipes']">← Back</button>
 
-<div>Main block</div>
-<div>left</div>
-<div>right</div>
+  <div class="main">
+    <img [src]="currentRecipe.image" alt="recipe-image" />
+    <div class="title-btns">
+      <p>{{ currentRecipe.name }}</p>
+      <div>
+        <button type="button">Edit</button>
+        <button type="button">Delete</button>
+      </div>
+    </div>
+    <div class="cuisine">{{ currentRecipe.cuisine }}</div>
+    <div class="tags">{{ currentRecipe.tags }}</div>
+    <div class="another-info">
+      <div class="prep">{{ currentRecipe.prepTimeMinutes }}</div>
+      <div class="cook">{{ currentRecipe.cookTimeMinutes }}</div>
+      <div class="servings">{{ currentRecipe.servings }}</div>
+      <div class="calories">{{ currentRecipe.caloriesPerServing }}</div>
+    </div>
+  </div>
+  <div class="blocks">
+    <div>
+      <h5>Ingredients</h5>
+      <ul>
+        @for(ingredient of currentRecipe.ingredients; track ingredient){
+        <li>
+          {{
+            ingredient
+          }}
+        </li>
+        }
+      </ul>
+    </div>
+    <div>
+        <h5>Instructions</h5>
+      <ol>
+        @for(instruction of currentRecipe.instructions; track instruction){
+        <li>
+          {{
+            instruction
+          }}
+        </li>
+        }
+      </ol>
+    </div>
+  </div>
+</section>
