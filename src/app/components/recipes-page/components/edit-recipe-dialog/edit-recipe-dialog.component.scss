@@ -1,0 +1,53 @@
+.grid {
+  display: grid;
+}
+.gap-4 {
+  gap: 1rem;
+}
+.mt-4 {
+  margin-top: 1rem;
+}
+.col-span-2 {
+  grid-column: span 2 / span 2;
+}
+@media (min-width: 640px) {
+  .sm\:col-span-1 {
+    grid-column: span 1 / span 1;
+  }
+}
+
+.card {
+  padding: 24px;
+  border: 1px solid gray;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.custom-tag {
+  display: inline;
+  padding: 4px;
+  background: lightgrey;
+  border: 1px solid grey;
+  border-radius: 12px;
+  margin-right: 4px;
+}
+
+.custom-box {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.custom-input {
+  width: 100%;
+}
+
+.x-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}

@@ -32,6 +32,7 @@ import {
   switchMap,
 } from 'rxjs';
 import { ModalConfirmationDialogComponent } from './components/modal-confirmation-dialog/modal-confirmation-dialog.component';
+import { EditRecipeDialogComponent } from './components/edit-recipe-dialog/edit-recipe-dialog.component';
 
 @Component({
   selector: 'app-recipes-page',
@@ -196,7 +197,7 @@ export class RecipesPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.getRecipesTags();
-    this.subscribeToRecipeDeletions()
+    this.subscribeToRecipeDeletions();
   }
 
   getRecipesTags() {
@@ -254,8 +255,37 @@ export class RecipesPageComponent implements OnInit {
   }
 
   subscribeToRecipeDeletions(): void {
-  this.recipesService.recipeDeleted$.subscribe(deletedId => {
-    this.deleteRecipeLocally(deletedId);
-  });
-}
+    this.recipesService.recipeDeleted$.subscribe((deletedId) => {
+      this.deleteRecipeLocally(deletedId);
+    });
+  }
+
+  openEditDialog(recipe: any): void {
+    const dialogRef = this.dialog.open(EditRecipeDialogComponent, {
+      width: '600px',
+      data: recipe,
+    });
+
+    dialogRef.afterClosed().subscribe((updatedRecipe: any | undefined) => {
+      if (updatedRecipe) {
+        this.updateRecipeLocally(updatedRecipe);
+      }
+    });
+  }
+
+  updateRecipeLocally(updatedRecipe: any): void {
+    const currentFullData = this.dataSource();
+
+    if (!currentFullData || currentFullData.length === 0) {
+      return;
+    }
+
+    const updatedData = currentFullData.map((recipe: any) => {
+      if (recipe.id === updatedRecipe.id) {
+        return updatedRecipe;
+      }
+      return recipe;
+    });
+    this.dataSource.set(updatedData);
+  }
 }
