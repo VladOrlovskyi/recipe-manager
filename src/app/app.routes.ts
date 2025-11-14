@@ -19,6 +19,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '/404', // Need create Not Found Component
+    redirectTo: '',
   },
 ];

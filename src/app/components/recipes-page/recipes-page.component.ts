@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   effect,
+  inject,
   OnInit,
   signal,
   WritableSignal,
@@ -20,6 +21,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatOptionModule } from '@angular/material/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { MatDialog } from '@angular/material/dialog';
 import {
   combineLatest,
   debounceTime,
@@ -29,6 +31,7 @@ import {
   Subject,
   switchMap,
 } from 'rxjs';
+import { ModalConfirmationDialogComponent } from './components/modal-confirmation-dialog/modal-confirmation-dialog.component';
 
 @Component({
   selector: 'app-recipes-page',
@@ -51,6 +54,7 @@ import {
   styleUrl: './recipes-page.component.scss',
 })
 export class RecipesPageComponent implements OnInit {
+  readonly dialog = inject(MatDialog);
   dataSource: WritableSignal<any[]> = signal([]);
   displayedColumns: string[] = [
     'Image',
@@ -210,6 +214,41 @@ export class RecipesPageComponent implements OnInit {
 
     if (!query && tag === 'All') {
       this.paginationChange$.next();
+    }
+  }
+
+  confirmDeletion(recipeId: number): void {
+    const dialogRef = this.dialog.open(ModalConfirmationDialogComponent, {
+      width: '400px',
+      data: { recipeId: recipeId },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+        this.deleteRecipeLocally(recipeId);
+      }
+    });
+  }
+
+  deleteRecipeLocally(id: number): void {
+    const currentFullData = this.dataSource();
+
+    if (!currentFullData || currentFullData.length === 0) {
+      return;
+    }
+
+    const updatedRecipes = currentFullData.filter(
+      (recipe: any) => recipe.id !== id
+    );
+
+    this.dataSource.set(updatedRecipes);
+
+    if (this.totalRecipes() > 0) {
+      this.totalRecipes.update((total) => total - 1);
+    }
+
+    if (this.paginatedData().length === 0 && this.pageIndexSignal() > 0) {
+      this.pageIndexSignal.update((index) => index - 1);
     }
   }
 }
